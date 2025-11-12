@@ -1,6 +1,5 @@
 from django.db import models
 from django.urls import reverse
-from mapbox_location_field.models import LocationField
 from ckeditor_uploader.fields import RichTextUploadingField
 
 
@@ -24,9 +23,10 @@ class EventCategory(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def get_absolute_url(self):
         return reverse('event-category-list')
+
 
 class JobCategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -34,12 +34,18 @@ class JobCategory(models.Model):
     def __str__(self):
         return self.name
 
+
 class Event(models.Model):
     category = models.ForeignKey(EventCategory, on_delete=models.CASCADE)
     name = models.CharField(max_length=255, unique=True)
     uid = models.PositiveIntegerField(unique=True)
     description = RichTextUploadingField()
-    job_category = models.ForeignKey(JobCategory, on_delete=models.CASCADE)
+    job_category = models.ForeignKey(
+    JobCategory,
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True
+)
     select_scheduled_status = (
         ('yet to scheduled', 'Yet to Scheduled'),
         ('scheduled', 'Scheduled')
@@ -48,7 +54,7 @@ class Event(models.Model):
     venue = models.CharField(max_length=255)
     start_date = models.DateField()
     end_date = models.DateField()
-    location = LocationField()
+    # ❌ Removed: location = LocationField()
     points = models.PositiveIntegerField()
     maximum_attende = models.PositiveIntegerField()
     created_user = models.ForeignKey('auth.User', on_delete=models.CASCADE, blank=True, null=True, related_name='event_created_user')
@@ -67,16 +73,17 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def get_absolute_url(self):
         return reverse('event-list')
-    
+
     def created_updated(model, request):
         obj = model.objects.latest('pk')
         if obj.created_by is None:
             obj.created_by = request.user
         obj.updated_by = request.user
         obj.save()
+
 
 class EventImage(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE)
@@ -132,13 +139,12 @@ class EventMember(models.Model):
     )
     status = models.CharField(choices=status_choice, max_length=10)
 
-
     class Meta:
         unique_together = ['event', 'user']
 
     def __str__(self):
         return str(self.user)
-    
+
     def get_absolute_url(self):
         return reverse('join-event-list')
 
@@ -159,13 +165,12 @@ class EventUserWishList(models.Model):
     )
     status = models.CharField(choices=status_choice, max_length=10)
 
-
     class Meta:
         unique_together = ['event', 'user']
 
     def __str__(self):
         return str(self.event)
-    
+
     def get_absolute_url(self):
         return reverse('event-wish-list')
 
@@ -193,15 +198,6 @@ class UserCoin(models.Model):
 
     def __str__(self):
         return str(self.user)
-    
+
     def get_absolute_url(self):
         return reverse('user-mark')
-
-
-
-
-
-
-
-
-

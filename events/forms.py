@@ -9,7 +9,7 @@ class EventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['category', 'name', 'uid', 'description', 'job_category', 'scheduled_status', 'venue', 'start_date', 'end_date', 'location', 'points', 'maximum_attende', 'status']
+        fields = ['category', 'name', 'uid', 'description', 'job_category', 'scheduled_status', 'venue', 'start_date', 'end_date', 'points', 'maximum_attende', 'status']
         widgets = {
             'start_date': forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}),
             'end_date': forms.TextInput(attrs={'class': 'form-control', 'type': 'date'}),
